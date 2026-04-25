@@ -4,7 +4,6 @@ const { createInventoryController, getInventoryController, getDonarsController, 
 const router = express.Router();
 
 
-//ADD INVERNTORY || POST
 router.post('/create-inventory', authMiddleware, createInventoryController);
 
 router.get('/get-inventory', authMiddleware, getInventoryController);

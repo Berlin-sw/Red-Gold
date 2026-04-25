@@ -1,12 +1,7 @@
 const mongoose = require("mongoose");
 
-const inventorySchema = new mongoose.Schema(
+const needSchema = new mongoose.Schema(
   {
-    inventoryType: {
-      type: String,
-      required: [true, "inventory type require"],
-      enum: ["in", "out"],
-    },
     bloodGroup: {
       type: String,
       required: [true, "blood group is require"],
@@ -14,20 +9,19 @@ const inventorySchema = new mongoose.Schema(
     },
     quantity: {
       type: Number,
-      require: [true, "blood quanity is require"],
-    },
-    email: {
-      type: String,
-    },
-    name: {
-      type: String,
-    },
-    organisation: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: [true, "organisation is require"],
+      require: [true, "blood quantity is require"],
     },
     hospital: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: [true, "hospital is require"],
+    },
+    status: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "fulfilled"],
+    },
+    organisation: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
     },
@@ -39,4 +33,4 @@ const inventorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Inventory", inventorySchema);
+module.exports = mongoose.model("Need", needSchema);

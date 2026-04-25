@@ -78,16 +78,25 @@ const Sidebar = () => {
               </div>
             </>
           )}
-
           {user?.role === "hospital" && (
-            <div
-              className={`menu-item d-flex align-items-center p-3 ${
-                location.pathname === "/consumer" && "active"
-              }`}
-            >
-              <i className="fa-solid fa-users-between-lines me-3 fs-5"></i>
-              <Link to="/consumer" className="text-decoration-none text-inherit fw-medium">Consumer</Link>
-            </div>
+            <>
+              <div
+                className={`menu-item d-flex align-items-center p-3 ${
+                  location.pathname === "/consumer" && "active"
+                }`}
+              >
+                <i className="fa-solid fa-users-between-lines me-3 fs-5"></i>
+                <Link to="/consumer" className="text-decoration-none text-inherit fw-medium">Consumer</Link>
+              </div>
+              <div
+                className={`menu-item d-flex align-items-center p-3 ${
+                  location.pathname === "/blood-request" && "active"
+                }`}
+              >
+                <i className="fa-solid fa-notes-medical me-3 fs-5"></i>
+                <Link to="/blood-request" className="text-decoration-none text-inherit fw-medium">Blood Request</Link>
+              </div>
+            </>
           )}
           {user?.role === "donar" && (
             <div

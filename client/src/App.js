@@ -16,6 +16,7 @@ import DonarList from './pages/admin/DonarList';
 import HospitalList from './pages/admin/HospitalList';
 import OrgList from './pages/admin/OrgList';
 import AdminHome from './pages/admin/AdminHome';
+import BloodRequest from './pages/Dashboard/BloodRequest';
 function App() {
   return (
     <>
@@ -82,6 +83,11 @@ function App() {
         <Route path="/donation" element={
             <ProtectedRoute>
               <Donation/>
+            </ProtectedRoute>
+        } />
+        <Route path="/blood-request" element={
+            <ProtectedRoute>
+              <BloodRequest/>
             </ProtectedRoute>
         } />
         <Route path="/organisation" element={

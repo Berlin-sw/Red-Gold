@@ -1,6 +1,8 @@
 import React from "react";
 import Layout from "../../components/shared/Layout/Layout";
 import { useSelector } from "react-redux";
+import API from "../../services/API";
+import moment from "moment";
 
 const AdminHome = () => {
   const { user } = useSelector((state) => state.auth);
@@ -40,9 +42,75 @@ const AdminHome = () => {
             </div>
           </div>
         </div>
+
+        <div className="mt-5">
+          <FulfilledNeeds />
+        </div>
       </div>
     </Layout>
   );
 };
+
+const FulfilledNeeds = () => {
+  const [data, setData] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  const getFulfilledNeeds = async () => {
+    try {
+      setLoading(true);
+      const { data } = await API.get("/need/get-fulfilled-needs");
+      if (data?.success) {
+        setData(data.needs);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    getFulfilledNeeds();
+  }, []);
+
+  return (
+    <div className="glass-panel p-4">
+      <h3 className="text-white mb-4">Fulfilled Blood Needs</h3>
+      <div className="table-responsive">
+        <table className="table table-dark table-hover">
+          <thead>
+            <tr>
+              <th>Blood Group</th>
+              <th>Quantity</th>
+              <th>Hospital</th>
+              <th>Fulfilled By</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.length > 0 ? (
+              data.map((record) => (
+                <tr key={record._id}>
+                  <td>{record.bloodGroup}</td>
+                  <td>{record.quantity} ml</td>
+                  <td>{record.hospital?.hospitalName}</td>
+                  <td>{record.organisation?.organisationName || "Organisation"}</td>
+                  <td>{moment(record.updatedAt).format("DD/MM/YYYY hh:mm A")}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center">No fulfilled needs yet</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+
+
 
 export default AdminHome;

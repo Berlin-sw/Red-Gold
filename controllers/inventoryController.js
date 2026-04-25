@@ -4,14 +4,26 @@ const userModel = require("../models/userModel");
 
 const createInventoryController = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await userModel.findOne({ email });
-    console.log(email);
-    console.log(user);
-    if (!user) {
-      console.log("USER NOT FOUND");
-      throw new Error("ERROR USER NOT FOUND");
+    const { name, inventoryType } = req.body;
+    let user;
+    if (inventoryType === "in") {
+      user = await userModel.findOne({ name });
+    } else {
+      user = await userModel.findOne({ hospitalName: name });
     }
+
+    // Set user-specific data if found
+    if (user) {
+      req.body.email = user.email;
+      if (inventoryType === "out") {
+        req.body.hospital = user._id;
+      } else {
+        req.body.donar = user._id;
+      }
+    }
+    
+    // Always store the name provided
+    req.body.name = name;
 
     // if(inventoryType ==='in' && user.role !== 'donar'){
     //     throw new Error("NOT A DONAR ACCOUNT");
@@ -70,9 +82,6 @@ const createInventoryController = async (req, res) => {
           message: `Only ${availableQuanityOfBloodGroup}ml of ${requestedBloodGroup.toUpperCase()} is available`,
         });
       }
-      req.body.hospital = user?._id;
-    } else {
-      req.body.donar = user?._id;
     }
 
     const inventory = new inventoryModel(req.body);
@@ -166,17 +175,50 @@ const getRecentInventoryController = async (req, res) => {
 const getDonarsController = async (req, res) => {
   try {
     const organisation = req.body.userId;
-    //find donars
-    const donorId = await inventoryModel.distinct("donar", {
-      organisation,
-    });
-    // console.log(donorId);
-    const donars = await userModel.find({ _id: { $in: donorId } });
+    
+    // Find all unique donors linked to this organisation in inventory
+    const donorsInInventory = await inventoryModel.aggregate([
+      { $match: { organisation: new mongoose.Types.ObjectId(organisation), inventoryType: "in" } },
+      {
+        $group: {
+          _id: {
+            donar: "$donar",
+            name: "$name",
+            email: "$email",
+          },
+          createdAt: { $first: "$createdAt" },
+        },
+      },
+    ]);
+
+    // Resolve registered users and combine with unregistered ones
+    const resolvedDonors = await Promise.all(donorsInInventory.map(async (item) => {
+      if (item._id.donar) {
+        // If it's a registered donor, fetch their full details
+        const user = await userModel.findById(item._id.donar);
+        return {
+          _id: item._id.donar,
+          name: user?.name,
+          email: user?.email,
+          phone: user?.phone,
+          createdAt: item.createdAt,
+        };
+      } else {
+        // If it's an unregistered donor, use the info from inventory
+        return {
+          _id: `unreg-${item._id.name}-${item._id.email}`, // dummy ID
+          name: item._id.name,
+          email: item._id.email || "N/A",
+          phone: "Unregistered",
+          createdAt: item.createdAt,
+        };
+      }
+    }));
 
     return res.status(200).send({
       success: true,
       message: "Donar Record Fetched Successfully",
-      donars,
+      donars: resolvedDonors,
     });
   } catch (error) {
     console.log(error);

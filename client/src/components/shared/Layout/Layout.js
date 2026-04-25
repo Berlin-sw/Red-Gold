@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
+import NeedAlert from './NeedAlert'
 
 const Layout = ({children}) => {
   return (
@@ -13,7 +14,10 @@ const Layout = ({children}) => {
       <div className="col-md-2">
         <Sidebar/>
       </div>
-      <div className='col-md-10'>{children}</div>
+      <div className='col-md-10'>
+        <NeedAlert />
+        {children}
+      </div>
     </div>
 
     </>

@@ -7,16 +7,16 @@ const Modal = () => {
   const [inventoryType, setInventoryType] = useState("in");
   const [bloodGroup, setBloodGroup] = useState("");
   const [quantity, setQuantity] = useState(0);
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const { user } = useSelector((state) => state.auth);
   // handle modal data
   const handleModalSubmit = async () => {
     try {
-      if (!bloodGroup || !quantity) {
+      if (!bloodGroup || !quantity || !name) {
         return alert("Please Provide All Fields");
       }
       const { data } = await API.post("/inventory/create-inventory", {
-        email,
+        name,
         organisation: user?._id,
         inventoryType,
         bloodGroup,
@@ -111,11 +111,11 @@ const Modal = () => {
               </div>
 
               <InputType
-                labelText={"Donor / Hospital Email"}
-                labelForm={"donarEmail"}
-                inputType={"email"}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                labelText={inventoryType === "in" ? "Donor Name" : "Hospital Name"}
+                labelForm={"name"}
+                inputType={"text"}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
               <InputType
                 labelText={"Quantity (ML)"}
